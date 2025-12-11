@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackMySalary</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Core Palette - More Vibrant! */
+            --primary-color: #4CAF50; /* Bright Green */
+            --secondary-color: #2196F3; /* Sky Blue */
+            --accent-color: #FFEB3B; /* Bright Yellow */
+            --text-color: #333;
+            --light-text-color: #616161;
+
+            /* Backgrounds - More Dynamic Gradients */
+            --bg-gradient-start: #8BC34A; /* Light Green */
+            --bg-gradient-mid: #4DD0E1;   /* Cyan */
+            --bg-gradient-end: #FFD54F;   /* Amber */
+            --card-bg: #FFFFFF;
+            --cal-bg: #E0F2F7;           /* Very light blue for calendar grid */
+
+            /* Borders & Shadows */
+            --border-color: #BDBDBD;      /* Slightly darker grey border */
+            --shadow-subtle: rgba(0, 0, 0, 0.1);
+            --shadow-medium: rgba(0, 0, 0, 0.2);
+
+            /* Status Colors - More Distinct */
+            --red-warning: #F44336;      /* Bright Red */
+            --green-success: #66BB6A;    /* Slightly lighter green for success */
+            --pink-accent: #E91E63;      /* Vibrant Pink */
+            --purple-accent: #9C27B0;    /* Deep Purple */
+            --amber-shift: #FFD54F;      /* Amber for Day Shift */
+            --deep-purple-shift: #7E57C2;/* Deep Purple for Night Shift */
+            /* NEW: Color for Add-ons */
+            --addon-color: #FF9800; /* Deep Orange */
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0; /* Remove default body margin */
+            padding: 0; /* Remove default body padding */
+            /* Multi-stop gradient for more color */
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column; /* Changed to column to stack container and footer */
+            justify-content: flex-start; /* Align items to the start (top) */
+            align-items: center; /* Center horizontally */
+            min-height: 100vh;
+            box-sizing: border-box;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 100%; /* Allow container to take full width */
+            width: 100%; /* Ensure it always takes 100% width */
+            flex-grow: 1; /* Allow container to grow and take available space */
+            background-color: var(--card-bg);
+            padding: 20px; /* Adjust overall padding for the container */
+            border-radius: 0; /* Remove border-radius for a true full-screen look */
+            box-shadow: none; /* Remove shadow for a flat, full-screen appearance */
+            box-sizing: border-box;
+            position: relative;
+            overflow: auto; /* Allow scrolling if content overflows vertically */
+            border: none; /* Remove any borders */
+        }
+
+        .page {
+            display: none; /* Hidden by default */
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out; /* For smooth show/hide */
+            width: 100%;
+            height: 100%; /* Or auto if content varies greatly */
+            padding: 20px; /* Add padding to individual pages */
+            box-sizing: border-box;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .page.active {
+            display: flex; /* Show with flexbox */
+            opacity: 1;
+            transform: translateY(0);
+            height: auto; /* Adjust height based on content */
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: var(--primary-color); /* Primary green for main headings */
+            margin-bottom: 25px;
+            font-weight: 700;
+            font-size: 2.2rem; /* Even larger heading */
+            letter-spacing: -0.8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Subtle text shadow */
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            color: var(--secondary-color); /* Secondary blue for sub-headings */
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            color: var(--purple-accent); /* Purple for section headings */
+            margin-top: 0;
+        }
+
+        .input-group {
+            width: 100%; /* Ensure inputs take full width of their parent */
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--light-text-color);
+            font-size: 1rem;
+            text-align: left; /* Align label text to left */
+        }
+
+        .input-group input:where([type="text"], [type="number"]),
+        .input-group select { /* Apply styles to select too */
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color); /* Thicker border */
+            border-radius: 12px; /* More rounded inputs */
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            color: var(--text-color);
+            -webkit-backface-visibility: hidden; /* Added to potentially help with rendering */
+            backface-visibility: hidden;
+            will-change: transform, opacity; /* Hint to browser for smoother rendering */
+            background-color: var(--card-bg); /* Ensure select has a background */
+            appearance: none; /* Remove default select arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%20viewBox%3D%220%200%20292.4%20292.4%22%3E%3Cpath%20fill%3D%22%23616161%22%20d%3D%22M287%20114.7L159.9%20241.8c-3.1%203.1-7.1%204.7-11.2%204.7s-8.2-1.6-11.3-4.7L5.3%20114.7c-3.1-3.1-4.7-7.1-4.7-11.3%200-8.8%207.2-16%2016-16h256c8.8%200%2016%207.2%2016%2016%200%204.2-1.6%208.2-4.7%2011.3z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 12px;
+            padding-right: 40px; /* Make space for the arrow */
+        }
+
+        .input-group input:where([type="text"], [type="number"]):focus,
+        .input-group select:focus { /* Apply focus styles to select too */
+            border-color: var(--accent-color); /* Bright yellow on focus */
+            box-shadow: 0 0 0 5px rgba(255, 235, 59, 0.4); /* Stronger accent glow */
+            outline: none;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 15px 20px; /* More generous padding */
+            background: linear-gradient(45deg, var(--primary-color), #66BB6A); /* Gradient for buttons */
+            color: white;
+            border: none;
+            border-radius: 12px; /* More rounded buttons */
+            font-size: 1.15rem; /* Larger button text */
+            font-weight: 700; /* Bolder button text */
+            cursor: pointer;
+            margin-top: 30px; /* More margin */
+            transition: all 0.3s ease; /* All properties for smooth hover */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25); /* Stronger button shadow */
+            letter-spacing: 0.8px;
+            text-transform: uppercase; /* Uppercase button text */
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #66BB6A, var(--primary-color)); /* Reverse gradient on hover */
+            transform: translateY(-3px) scale(1.02); /* More pronounced hover lift and slight scale */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); /* Even stronger hover shadow */
+        }
+
+        button:active {
+            transform: translateY(0) scale(1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Highlight Boxes (custom) - More colorful variations */
+        .highlight-box {
+            width: 100%;
+            padding: 18px; /* More padding */
+            border-radius: 15px; /* More rounded */
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+            box-shadow: 0 3px 10px var(--shadow-subtle);
+            border: 2px solid; /* Add border for all highlight boxes */
+        }
+        .highlight-box.red {
+            border-color: var(--red-warning);
+            background-color: rgba(244, 67, 54, 0.15); /* More vibrant red background */
+            color: var(--red-warning);
+        }
+        .highlight-box.pink {
+            border-color: var(--pink-accent);
+            background-color: rgba(233, 30, 99, 0.15); /* More vibrant pink background */
+            color: var(--pink-accent);
+        }
+        /* New highlight box color for dashboard greeting */
+        .highlight-box.purple {
+            border-color: var(--purple-accent);
+            background-color: rgba(156, 39, 176, 0.15);
+            color: var(--purple-accent);
+        }
+
+        /* Dashboard Greeting - New Styles */
+        #dashboardGreeting {
+            font-size: 2.5rem; /* Larger */
+            font-weight: 800; /* Extra bold */
+            color: var(--pink-accent); /* Vibrant pink */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.15); /* Stronger shadow */
+            margin-bottom: 20px;
+        }
+
+
+        .total-salary-calculated {
+            text-align: center;
+            font-size: 1.2rem; /* Larger text */
+            font-weight: 700;
+            margin-top: 25px;
+            color: var(--secondary-color);
+            padding: 12px 0;
+            border-top: 2px dashed var(--secondary-color); /* Dashed blue border */
+            border-bottom: 2px dashed var(--secondary-color);
+            background-color: rgba(33, 150, 243, 0.05); /* Light blue background */
+            border-radius: 8px;
+        }
+
+        /* Main Dashboard Specifics */
+        .dashboard-info-card {
+            background-color: var(--cal-bg); /* Light blue background */
+            padding: 18px 25px; /* More padding */
+            border-radius: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+            box-shadow: 0 3px 10px var(--shadow-subtle);
+            font-size: 1.05rem;
+            font-weight: 500;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid rgba(33, 150, 243, 0.2); /* Subtle blue border */
+        }
+        .dashboard-info-card strong {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        .salary-details-section {
+            border: 2px solid var(--purple-accent); /* Purple border for this section */
+            padding: 25px; /* More padding */
+            margin-top: 35px;
+            border-radius: 15px;
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 15px var(--shadow-medium);
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .salary-details-section p {
+            font-size: 1.05rem;
+            margin-bottom: 10px;
+        }
+
+        /* Total Earnings Display - New Styles */
+        .total-earnings-display {
+            font-size: 2.8rem; /* Much larger */
+            font-weight: 900; /* Super bold */
+            color: var(--secondary-color); /* Bright blue, very prominent */
+            text-align: center;
+            margin-top: 35px; /* More spacing */
+            padding: 20px 0; /* More padding */
+            border-top: 4px solid var(--secondary-color); /* Thicker border */
+            border-bottom: 4px solid var(--secondary-color);
+            background-color: rgba(33, 150, 243, 0.1); /* Light blue background */
+            border-radius: 12px;
+            letter-spacing: 1px; /* Add some letter spacing */
+        }
+        .total-earnings-display strong {
+            display: block; /* Ensure the span is on its own line for the large text */
+        }
+
+
+        /* Calendar Styling - Smaller and more vibrant */
+        .calendar-container {
+            margin: 35px auto 0 auto; /* Added auto margins for centering */
+            text-align: center;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0 10px; /* Add some horizontal padding to the container for spacing */
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+
+        .calendar-header button {
+            width: auto;
+            padding: 10px 18px;
+            background-color: var(--secondary-color); /* Use secondary blue */
+            color: white;
+            font-size: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            margin-top: 0;
+            flex-shrink: 0;
+        }
+        .calendar-header button:hover {
+            background-color: #1565C0; /* Darker blue on hover */
+        }
+
+        .current-month-display {
+            font-size: 1.2rem; /* Slightly smaller font size */
+            font-weight: 700;
+            padding: 10px 18px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            background-color: var(--cal-bg);
+            min-width: 150px; /* Adjusted min-width slightly */
+            margin: 0 10px; /* Reduced side margins */
+            flex-grow: 1;
+            color: var(--secondary-color);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px; /* Reduced gap between days */
+            max-width: 340px; /* Slightly increased max-width for better fit */
+            margin: 15px auto; /* Centered with top margin */
+            padding: 15px;
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            background-color: var(--cal-bg);
+            box-shadow: 0 5px 15px var(--shadow-medium);
+        }
+
+        /* Weekday headers */
+        .calendar-grid .weekday {
+            font-weight: 700; /* Bolder */
+            color: var(--light-text-color);
+            font-size: 0.9rem;
+            padding-bottom: 8px;
+            border-bottom: 2px dashed var(--border-color); /* Thicker dashed border */
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .calendar-grid .weekday:first-child {
+            color: var(--red-warning);
+        }
+
+
+        .calendar-day {
+            width: 42px; /* Slightly larger to fill space better on full screen */
+            height: 42px; /* Slightly larger to fill space better on full screen */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.95rem; /* Slightly smaller font for day numbers */
+            cursor: pointer;
+            background-color: var(--card-bg);
+            border-radius: 50%;
+            transition: all 0.3s ease; /* Smooth transition for all properties */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            font-weight: 500;
+            border: 1px solid var(--border-color); /* Subtle border for each day */
+        }
+
+        .calendar-day:hover:not(.empty) {
+            transform: translateY(-3px) scale(1.05); /* More lift and slight scale */
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            border-color: var(--accent-color); /* Yellow border on hover */
+        }
+
+        /* Calendar Day States - New and Updated */
+        .calendar-day.worked {
+            background-color: var(--green-success);
+            color: white;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+            font-weight: 700;
+            border-color: var(--green-success); /* Border matches fill */
+        }
+        .calendar-day.not-worked {
+            background-color: var(--red-warning);
+            color: white;
+            box-shadow: 0 44px 12px rgba(244, 67, 54, 0.4);
+            font-weight: 700;
+            border-color: var(--red-warning); /* Border matches fill */
+        }
+        .calendar-day.day-shift {
+            background-color: var(--amber-shift); /* Amber for Day Shift */
+            color: var(--text-color); /* Dark text for contrast */
+            box-shadow: 0 4px 12px rgba(255, 213, 79, 0.4);
+            font-weight: 700;
+            border-color: var(--amber-shift);
+        }
+        .calendar-day.night-shift {
+            background-color: var(--deep-purple-shift); /* Deep Purple for Night Shift */
+            color: white;
+            box-shadow: 0 4px 12px rgba(126, 87, 194, 0.4);
+            font-weight: 700;
+            border-color: var(--deep-purple-shift);
+        }
+        .calendar-day .icon {
+            font-size: 0.8em; /* Slightly smaller icon */
+            line-height: 1;
+            margin-top: 1px; /* Adjust margin for smaller icon */
+        }
+
+        /* NEW: Styles for extra shift days */
+        .calendar-day.has-extra-hours {
+            background-color: var(--secondary-color); /* Blue background for extra shifts */
+            color: white;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+            font-weight: 700;
+            border-color: var(--secondary-color);
+        }
+        .calendar-day .extra-hours {
+            font-size: 0.8em;
+            line-height: 1;
+            margin-top: 1px;
+        }
+
+        .calendar-day.empty {
+            background-color: transparent;
+            box-shadow: none;
+            cursor: default;
+            border: none; /* No border for empty days */
+        }
+
+        .calendar-day .day-number {
+            font-size: 0.95rem; /* Match day cell font size */
+            line-height: 1;
+        }
+
+        .view-options {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .view-options button {
+            width: auto;
+            padding: 12px 20px;
+            background: linear-gradient(45deg, var(--secondary-color), #4FC3F7); /* Blue gradient for view options */
+            color: white;
+            font-size: 1.05rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .view-options button:hover {
+            background: linear-gradient(45deg, #4FC3F7, var(--secondary-color));
+        }
+
+        /* New styles for comparison block */
+        .comparison-block {
+            background-color: var(--cal-bg); /* Light blue background */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow-medium);
+            margin-top: 30px;
+            text-align: center;
+            border: 2px solid var(--secondary-color); /* Blue border for comparison */
+        }
+
+        .comparison-block h3 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .comparison-grid {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+
+        .month-column {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px var(--shadow-subtle);
+            flex: 1; /* Allow columns to grow and shrink */
+            min-width: 150px; /* Minimum width for columns */
+            max-width: 48%; /* Max width to allow two columns */
+            box-sizing: border-box;
+            border: 1px solid var(--border-color);
+            text-align: left; /* Align text within columns to left */
+        }
+
+        .month-column h4 {
+            font-size: 1.1rem;
+            color: var(--purple-accent); /* Purple for month names */
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .month-column p {
+            font-size: 0.95rem;
+            margin-bottom: 5px;
+            color: var(--light-text-color);
+            display: flex; /* Use flex to align label and strong */
+            justify-content: space-between; /* Space out label and value */
+            align-items: center;
+        }
+
+        .month-column strong {
+            color: var(--text-color); /* Darker text for values */
+            font-weight: 600;
+            font-size: 1em; /* Keep it relative to parent p font size */
+        }
+
+        .month-column .month-total-earnings {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color); /* Green for total earnings */
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+            text-align: center;
+        }
+        .month-column .month-total-earnings strong {
+            font-size: 1.1em;
+            color: var(--secondary-color); /* Blue for the actual earning value */
+        }
+
+        /* New styles for Yearly Earnings Block */
+        .yearly-earnings-block {
+            background-color: var(--card-bg); /* White background */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow-medium);
+            margin-top: 30px;
+            text-align: center;
+            border: 2px solid var(--primary-color); /* Green border */
+            display: flex; /* Use flexbox for internal alignment */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .yearly-earnings-block h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.6rem; /* Slightly larger heading */
+        }
+
+        .yearly-earnings-block .yearly-total {
+            font-size: 2.2rem; /* Large font size for the total */
+            font-weight: 800; /* Extra bold */
+            color: var(--primary-color); /* Green for the total */
+            padding: 10px 0;
+            width: 100%; /* Ensure it spans the width */
+        }
+
+        .yearly-earnings-block .yearly-total strong {
+            color: var(--secondary-color); /* Blue for the actual amount for contrast */
+            font-size: 1em; /* Keep relative to parent */
+        }
+
+        /* NEW: Styles for Extra Shifts Summary Box */
+        .extra-shift-summary-box {
+            background-color: var(--cal-bg); /* Light blue background */
+            padding: 18px 25px;
+            border-radius: 15px;
+            margin-top: 25px; /* Added margin-top to separate it from the calendar grid */
+            margin-bottom: 0px; /* No bottom margin, as it's at the end of its section */
+            text-align: center;
+            box-shadow: 0 3px 10px var(--shadow-subtle);
+            font-size: 1.05rem;
+            font-weight: 500;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid rgba(33, 150, 243, 0.2);
+        }
+        .extra-shift-summary-box h4 {
+            color: var(--secondary-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .extra-shift-summary-box p {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .extra-shift-summary-box strong {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        /* NEW: Styles for Other Add-ons Section */
+        .other-addons-section {
+            background-color: var(--card-bg);
+            padding: 25px;
+            margin-top: 35px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px var(--shadow-medium);
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid var(--red-warning); /* Changed to red border as per image */
+            max-height: 400px; /* Fixed height for scrollability */
+            overflow-y: auto; /* Enable vertical scrolling */
+            display: flex; /* Use flexbox for internal layout */
+            flex-direction: column;
+            align-items: center; /* Center items horizontally */
+        }
+
+        .other-addons-section h3 {
+            color: var(--red-warning); /* Red heading */
+            margin-bottom: 25px;
+            flex-shrink: 0; /* Prevent heading from shrinking */
+        }
+
+        /* Adjust addons-grid to allow individual blocks to be full width */
+        .addons-grid {
+            display: flex; /* Change to flex for vertical stacking */
+            flex-direction: column; /* Stack items vertically */
+            width: 100%; /* Take full width of parent */
+            gap: 15px; /* Gap between add-on blocks */
+            padding: 10px 0;
+            flex-grow: 1; /* Allow grid to grow */
+        }
+
+        .addon-day-block {
+            background-color: var(--card-bg); /* White background for individual blocks */
+            padding: 10px 15px; /* Reduced padding */
+            border-radius: 10px; /* Less rounded */
+            box-shadow: 0 1px 5px rgba(0,0,0,0.1); /* Lighter shadow */
+            border: 2px solid #00BCD4; /* Cyan border as per image */
+            text-align: center; /* Center content within the block */
+            position: relative;
+            cursor: pointer; /* Indicate clickability */
+            transition: all 0.2s ease;
+        }
+
+        .addon-day-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .addon-day-block h4 {
+            font-size: 1.1rem; /* Adjust font size */
+            color: var(--text-color); /* Dark text for day number/date */
+            margin-top: 0;
+            margin-bottom: 5px; /* Reduced margin */
+            text-align: center;
+            font-weight: 600;
+            /* No border-bottom for cleaner look as per image */
+        }
+
+        .addon-day-block .input-group {
+            margin-bottom: 10px; /* Smaller margin for inputs inside addon block */
+        }
+        
+        .addon-day-block input:where([type="text"], [type="number"]),
+        .addon-day-block select {
+            border-radius: 8px; /* Slightly less rounded than main inputs */
+            padding: 8px 12px; /* Adjusted padding */
+            font-size: 0.9rem; /* Smaller font size */
+            background-color: #f5f5f5; /* Light grey background for inputs */
+            border: 1px solid var(--border-color); /* Subtle border */
+        }
+
+        .addon-day-block input:where([type="text"], [type="number"]):focus,
+        .addon-day-block select:focus {
+            border-color: #00BCD4; /* Cyan on focus */
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2); /* Cyan glow */
+        }
+        
+        /* Hide labels for inputs within addon-day-block to match image */
+        .addon-day-block .input-group label {
+            display: none; 
+        }
+
+        /* Simplified daily-addon-total for image-like appearance */
+        .daily-addon-total {
+            text-align: center; /* Center the daily total */
+            font-weight: 500; /* Lighter font weight */
+            color: var(--light-text-color); /* Lighter text color */
+            margin-top: 10px; /* Reduced margin */
+            padding-top: 5px; /* Reduced padding */
+            border-top: none; /* No top border */
+            font-size: 0.9rem; /* Smaller font size */
+        }
+        .daily-addon-total strong {
+            font-size: 1em; /* Keep relative */
+            color: var(--addon-color); /* Orange for the actual amount */
+        }
+
+        .other-addons-summary-box {
+            background-color: rgba(255, 152, 0, 0.1); /* Light orange background */
+            padding: 18px 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(255, 152, 0, 0.2);
+            font-size: 1.05rem;
+            font-weight: 500;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid var(--addon-color);
+            flex-shrink: 0; /* Prevent summary from shrinking */
+        }
+        .other-addons-summary-box h4 {
+            color: var(--addon-color);
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        .other-addons-summary-box p {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .other-addons-summary-box strong {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+
+        /* Footer Styling */
+        .footer {
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--light-text-color);
+            margin-top: auto; /* Pushes the footer to the bottom */
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white background */
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <div id="welcomePage" class="page">
+            <div class="highlight-box red">
+                <h1>Welcome to Trackmysalary</h1>
+            </div>
+            <div class="input-group">
+                <label for="welcomeUserName">Enter your name</label>
+                <input type="text" id="welcomeUserName" placeholder="Your Name">
+            </div>
+            <button onclick="goToPage('salaryDetailsPage')">Next</button>
+        </div>
+
+        <div id="salaryDetailsPage" class="page">
+            <div class="highlight-box pink">
+                <h2>Enter Base Salary Details</h2>
+            </div>
+            <div class="input-group">
+                <label for="currencySelect">Select Currency Symbol</label>
+                <select id="currencySelect">
+                    <option value="₹">₹ (INR - Indian Rupee)</option>
+                    <option value="$">$ (USD - US US Dollar)</option>
+                    <option value="€">€ (EUR - Euro)</option>
+                    <option value="£">£ (GBP - British Pound)</option>
+                    <option value="¥">¥ (JPY - Japanese Yen)</option>
+                    <option value="A$">A$ (AUD - Australian Dollar)</option>
+                    <option value="C$">C$ (CAD - Canadian Dollar)</option>
+                    <option value="¥">¥ (CNY - Chinese Yuan)</option>
+                    <option value="Rp">Rp (IDR - Indonesian Rupiah)</option>
+                    <option value="custom">Other (Specify below)</option>
+                </select>
+            </div>
+            <div class="input-group" id="customCurrencyInputGroup" style="display:none;">
+                <label for="customCurrencySymbol">Enter Custom Currency Symbol (e.g., ₩, ₽, Mex$, kr)</label>
+                <input type="text" id="customCurrencySymbol" placeholder="e.g., ฿">
+            </div>
+            <div class="input-group">
+                <label for="countrySelect">Select Your Country (for future features)</label>
+                <select id="countrySelect">
+                    <option value="India">India</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Germany">Germany</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Indonesia">Indonesia</option>
+                    </select>
+            </div>
+            <div class="input-group">
+                <label for="perHourSalary">Per hour salary (for regular work)</label>
+                <input type="number" id="perHourSalary" placeholder="e.g., 500">
+            </div>
+            <div class="input-group">
+                <label for="perDaySalary">Per day salary (for regular work)</label>
+                <input type="number" id="perDaySalary" placeholder="e.g., 4000">
+            </div>
+            <div class="input-group">
+                <label for="extraShiftPerHourSalary">Extra Shift: Per hour salary</label>
+                <input type="number" id="extraShiftPerHourSalary" placeholder="e.g., 750 (or 0 if not applicable)">
+            </div>
+            <div class="total-salary-calculated">
+                Estimated monthly base salary: <span id="calculatedMonthlySalary">0</span>
+            </div>
+            <button onclick="calculateAndGoToPage('mainDashboardPage')">Go to Dashboard</button>
+        </div>
+
+        <div id="mainDashboardPage" class="page">
+            <div class="highlight-box purple">
+                <h2 id="dashboardGreeting">Hi User</h2>
+            </div>
+            <div class="dashboard-info-card">
+                Your estimated monthly base salary: <strong id="dashboardCurrentSalary">₹0.00</strong>
+            </div>
+
+            <button id="refreshDashboardBtn" style="margin-top: 20px;">Refresh Dashboard</button>
+            <div class="salary-details-section">
+                <h3><span id="monthNameDisplay">July 2025</span> Summary</h3>
+                <p>Total Active Days (from calendar): <strong id="workedDaysDisplay">0</strong> days</p>
+                <p>Day Shifts (from calendar): <strong id="dayShiftCountDisplay">0</strong></p>
+                <p>Night Shifts (from calendar): <strong id="nightShiftCountDisplay">0</strong></p>
+                <p>Total Extra Hours: <strong id="totalExtraHoursDisplay">0</strong> hrs</p>
+                <p>Extra Shift Earnings: <strong id="extraShiftEarningsDisplay">₹0.00</strong></p>
+                <p>Other Add-on Earnings: <strong id="otherAddonsEarningsDisplay">₹0.00</strong></p>
+                <p class="total-earnings-display"><strong>Total Earnings: <span id="totalEarningsDisplay">₹0.00</span></strong></p>
+            </div>
+
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <button id="prevMonthBtn"><</button>
+                    <span class="current-month-display" id="calendarMonthDisplay">July 2025</span>
+                    <button id="nextMonthBtn">></button>
+                </div>
+                <div class="calendar-grid" id="calendarGrid">
+                    <div class="weekday">Sun</div>
+                    <div class="weekday">Mon</div>
+                    <div class="weekday">Tue</div>
+                    <div class="weekday">Wed</div>
+                    <div class="weekday">Thu</div>
+                    <div class="weekday">Fri</div>
+                    <div class="weekday">Sat</div>
+                    </div>
+                <div class="view-options">
+                    <button onclick="alert('Viewing in weeks not yet implemented!')">View in Weeks</button>
+                </div>
+            </div>
+
+            <div class="salary-details-section" style="margin-top: 35px;">
+                <h3>Extra Shifts Calendar</h3>
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <button id="prevExtraShiftMonthBtn"><</button>
+                        <span class="current-month-display" id="extraShiftCalendarMonthDisplay">July 2025</span>
+                        <button id="nextExtraShiftMonthBtn">></button>
+                    </div>
+                    <div class="calendar-grid" id="extraShiftCalendarGrid">
+                        <div class="weekday">Sun</div>
+                        <div class="weekday">Mon</div>
+                        <div class="weekday">Tue</div>
+                        <div class="weekday">Wed</div>
+                        <div class="weekday">Thu</div>
+                        <div class="weekday">Fri</div>
+                        <div class="weekday">Sat</div>
+                    </div>
+                </div>
+                <div class="extra-shift-summary-box">
+                    <h4>Extra Shifts for <span id="extraShiftSummaryMonthDisplay">July 2025</span></h4>
+                    <p>Total Extra Hours: <strong id="extraShiftTotalHoursDisplayBelow">0</strong> hrs</p>
+                    <p>Estimated Earnings: <strong id="extraShiftEarningsDisplayBelow">₹0.00</strong></p>
+                </div>
+            </div>
+            <div id="otherAddonsSection" class="other-addons-section">
+                <h3>Other Monthly Add-ons for <span id="addonsMonthDisplay">July 2025</span></h3>
+                <div id="addonsGrid" class="addons-grid">
+                    </div>
+                <div class="other-addons-summary-box">
+                    <h4>Add-ons Summary for <span id="otherAddonsSummaryMonthDisplay">July 2025</span></h4>
+                    <p>Total Add-on Earnings: <strong id="totalOtherAddonsEarningsDisplay">₹0.00</strong></p>
+                </div>
+            </div>
+            <button id="saveAddonsBtn">Save Add-ons</button>
+            <div class="comparison-block">
+                <h3>Monthly Comparison</h3>
+                <div class="comparison-grid">
+                    <div class="month-column">
+                        <h4><span id="prevMonthNameDisplay">June 2025</span></h4>
+                        <p>Total Active Days: <strong id="prevWorkedDaysDisplay">0</strong></p>
+                        <p>Day Shifts: <strong id="prevDayShiftCountDisplay">0</strong></p>
+                        <p>Night Shifts: <strong id="prevNightShiftCountDisplay">0</strong></p>
+                        <p>Extra Hours: <strong id="prevExtraHoursDisplay">0</strong></p>
+                        <p>Other Add-ons: <strong id="prevOtherAddonsDisplay">₹0.00</strong></p>
+                        <p class="month-total-earnings">Earned: <strong id="prevTotalEarningsDisplay">₹0.00</strong></p>
+                    </div>
+                    <div class="month-column">
+                        <h4><span id="currentCompMonthNameDisplay">July 2025</span></h4>
+                        <p>Total Active Days: <strong id="currentCompWorkedDaysDisplay">0</strong></p>
+                        <p>Day Shifts: <strong id="currentCompDayShiftCountDisplay">0</strong></p>
+                        <p>Night Shifts: <strong id="currentCompNightShiftDisplay">0</strong></p>
+                        <p>Extra Hours: <strong id="currentCompExtraHoursDisplay">0</strong></p>
+                        <p>Other Add-ons: <strong id="currentCompOtherAddonsDisplay">₹0.00</strong></p>
+                        <p class="month-total-earnings">Earned: <strong id="currentCompTotalEarningsDisplay">₹0.00</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="yearly-earnings-block">
+                <h3>Overall Earnings for <span id="yearlyEarningsYearDisplay">2025</span></h3>
+                <p class="yearly-total">
+                    Total: <strong id="totalYearlyEarningsDisplay">₹0.00</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        © 2025 TrackMySalary. All rights reserved. Made by Vksoftwares.
+    </footer>
+
+    <script>
+        // Store app data globally or in a state object
+        let appData = {
+            userName: '',
+            perHourSalary: 0,
+            perDaySalary: 0,
+            extraShiftPerHourSalary: 0, 
+            calculatedMonthlySalary: 0,
+            currencySymbol: '₹', 
+            country: 'India', 
+            
+            currentMonth: new Date(),
+            // Map to store calendar data for each month (main calendar)
+            workedDaysMap: new Map(), 
+            // NEW: Map to store extra shift hours for each month
+            extraShiftHoursMap: new Map(), 
+            // NEW: Map to store other add-ons for each month
+            otherAddonsMap: new Map(), // Key: 'YYYY-M', Value: { day: { name: '', type: '', amount: 0, hours: 0 }, ... }
+        };
+
+        // --- Local Storage Functions ---
+        function saveAppData() {
+            try {
+                localStorage.setItem('trackMySalary_userName', appData.userName);
+                localStorage.setItem('trackMySalary_perHourSalary', appData.perHourSalary);
+                localStorage.setItem('trackMySalary_perDaySalary', appData.perDaySalary);
+                localStorage.setItem('trackMySalary_extraShiftPerHourSalary', appData.extraShiftPerHourSalary); 
+                localStorage.setItem('trackMySalary_calculatedMonthlySalary', appData.calculatedMonthlySalary);
+                localStorage.setItem('trackMySalary_currencySymbol', appData.currencySymbol); 
+                localStorage.setItem('trackMySalary_country', appData.country); 
+                
+                // Convert Map to array of arrays, then stringify for main calendar
+                localStorage.setItem('trackMySalary_workedDaysMap', JSON.stringify(Array.from(appData.workedDaysMap.entries())));
+                // NEW: Convert Map to array of arrays, then stringify for extra shifts
+                localStorage.setItem('trackMySalary_extraShiftHoursMap', JSON.stringify(Array.from(appData.extraShiftHoursMap.entries())));
+                // NEW: Convert Map to array of arrays, then stringify for other add-ons
+                localStorage.setItem('trackMySalary_otherAddonsMap', JSON.stringify(Array.from(appData.otherAddonsMap.entries())));
+
+
+                console.log("App data saved to localStorage.");
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
+                // alert("Could not save data. Your browser might be in private mode or storage is full.");
+            }
+        }
+
+        function loadAppData() {
+            try {
+                const savedUserName = localStorage.getItem('trackMySalary_userName');
+                
+                if (savedUserName) {
+                    appData.userName = savedUserName;
+                    appData.perHourSalary = parseFloat(localStorage.getItem('trackMySalary_perHourSalary')) || 0;
+                    appData.perDaySalary = parseFloat(localStorage.getItem('trackMySalary_perDaySalary')) || 0;
+                    appData.extraShiftPerHourSalary = parseFloat(localStorage.getItem('trackMySalary_extraShiftPerHourSalary')) || 0; 
+                    appData.calculatedMonthlySalary = parseFloat(localStorage.getItem('trackMySalary_calculatedMonthlySalary')) || 0;
+                    appData.currencySymbol = localStorage.getItem('trackMySalary_currencySymbol') || '₹'; 
+                    appData.country = localStorage.getItem('trackMySalary_country') || 'India'; 
+                    
+                    const savedWorkedDaysMap = localStorage.getItem('trackMySalary_workedDaysMap');
+                    if (savedWorkedDaysMap) {
+                        // Parse array of arrays back into a Map for main calendar
+                        appData.workedDaysMap = new Map(JSON.parse(savedWorkedDaysMap));
+                    }
+                    // NEW: Load extra shift hours map
+                    const savedExtraShiftHoursMap = localStorage.getItem('trackMySalary_extraShiftHoursMap');
+                    if (savedExtraShiftHoursMap) {
+                        appData.extraShiftHoursMap = new Map(JSON.parse(savedExtraShiftHoursMap));
+                    }
+                    // NEW: Load other add-ons map
+                    const savedOtherAddonsMap = localStorage.getItem('trackMySalary_otherAddonsMap');
+                    if (savedOtherAddonsMap) {
+                        appData.otherAddonsMap = new Map(JSON.parse(savedOtherAddonsMap));
+                    }
+
+                    console.log("App data loaded from localStorage.");
+                    return true; // Data was loaded
+                }
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                // Clear potentially corrupted data if loading fails
+                localStorage.clear(); 
+            }
+            return false; // No data or error loading
+        }
+
+        // --- Page Navigation Functions ---
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                if (page.id === pageId) {
+                    page.style.display = 'flex';
+                    setTimeout(() => {
+                        page.classList.add('active');
+                    }, 10);
+                } else {
+                    page.classList.remove('active');
+                    setTimeout(() => {
+                        page.style.display = 'none';
+                    }, 600); // Matches CSS transition duration (0.6s)
+                }
+            });
+        }
+
+        function goToPage(nextPageId) {
+            const welcomeUserNameInput = document.getElementById('welcomeUserName');
+            if (nextPageId === 'salaryDetailsPage' && welcomeUserNameInput) {
+                appData.userName = welcomeUserNameInput.value.trim();
+            } 
+            // Call updateDashboard here ONLY if going to dashboard directly after initial setup.
+            // For subsequent navigations, updateDashboard is triggered by month changes/toggles.
+            if (nextPageId === 'mainDashboardPage') {
+                updateDashboard(); 
+            }
+            // Removed saveAppData() here, as updateDashboard() already handles it, and this prevents
+            // saving incomplete data during transitions or before all inputs are processed.
+            showPage(nextPageId);
+        }
+
+        // --- Salary Details Page Logic ---
+        function calculateAndGoToPage(nextPageId) {
+            const perHourSalaryInput = document.getElementById('perHourSalary');
+            const perDaySalaryInput = document.getElementById('perDaySalary');
+            const extraShiftPerHourSalaryInput = document.getElementById('extraShiftPerHourSalary'); 
+            const currencySelect = document.getElementById('currencySelect');
+            const customCurrencySymbolInput = document.getElementById('customCurrencySymbol');
+            const countrySelect = document.getElementById('countrySelect');
+            const calculatedMonthlySalarySpan = document.getElementById('calculatedMonthlySalary');
+
+            appData.perHourSalary = perHourSalaryInput ? parseFloat(perHourSalaryInput.value) || 0 : 0;
+            appData.perDaySalary = perDaySalaryInput ? parseFloat(perDaySalaryInput.value) || 0 : 0;
+            appData.extraShiftPerHourSalary = extraShiftPerHourSalaryInput ? parseFloat(extraShiftPerHourSalaryInput.value) || 0 : 0; 
+            
+            if (currencySelect) {
+                const selectedCurrency = currencySelect.value;
+                if (selectedCurrency === 'custom') {
+                    appData.currencySymbol = customCurrencySymbolInput ? customCurrencySymbolInput.value.trim() : '₹';
+                    if (!appData.currencySymbol) {
+                        appData.currencySymbol = '₹'; 
+                    }
+                } else {
+                    appData.currencySymbol = selectedCurrency;
+                }
+            } else {
+                appData.currencySymbol = '₹'; // Fallback if currencySelect is missing
+            }
+            
+            appData.country = countrySelect ? countrySelect.value : 'India'; 
+
+            let calculatedMonthly = 0;
+            if (appData.perDaySalary > 0) {
+                calculatedMonthly = appData.perDaySalary * 22; 
+            } else if (appData.perHourSalary > 0) {
+                calculatedMonthly = (appData.perHourSalary * 8) * 22; 
+            }
+            
+            if (calculatedMonthlySalarySpan) {
+                calculatedMonthlySalarySpan.textContent = `${appData.currencySymbol}${calculatedMonthly.toFixed(2)}`;
+            }
+            appData.calculatedMonthlySalary = calculatedMonthly; 
+            
+            saveAppData(); 
+            goToPage(nextPageId);
+        }
+
+        // --- Main Dashboard Logic ---
+        function updateDashboard() {
+            const dashboardGreeting = document.getElementById('dashboardGreeting');
+            if (dashboardGreeting) {
+                dashboardGreeting.textContent = `Hi ${appData.userName || 'User'}`;
+            }
+            const dashboardCurrentSalary = document.getElementById('dashboardCurrentSalary');
+            if (dashboardCurrentSalary) {
+                dashboardCurrentSalary.textContent = `${appData.currencySymbol}${appData.calculatedMonthlySalary.toFixed(2)}`;
+            }
+            
+            // Get current month summary including all types of shifts and add-ons
+            const currentMonthSummary = getMonthlySummary(appData.currentMonth); 
+
+            // Update main summary section
+            const monthNameDisplay = document.getElementById('monthNameDisplay');
+            if (monthNameDisplay) monthNameDisplay.textContent = currentMonthSummary.monthName;
+
+            const workedDaysDisplay = document.getElementById('workedDaysDisplay');
+            if (workedDaysDisplay) workedDaysDisplay.textContent = currentMonthSummary.workedDays;
+            const dayShiftCountDisplay = document.getElementById('dayShiftCountDisplay');
+            if (dayShiftCountDisplay) dayShiftCountDisplay.textContent = currentMonthSummary.dayShifts;
+            const nightShiftCountDisplay = document.getElementById('nightShiftCountDisplay');
+            if (nightShiftCountDisplay) nightShiftCountDisplay.textContent = currentMonthSummary.nightShifts;
+            
+            // Existing: Update extra shift displays in the main summary
+            const totalExtraHoursDisplay = document.getElementById('totalExtraHoursDisplay');
+            if (totalExtraHoursDisplay) {
+                totalExtraHoursDisplay.textContent = `${currentMonthSummary.totalExtraHours % 1 === 0 ? currentMonthSummary.totalExtraHours : currentMonthSummary.totalExtraHours.toFixed(1)}`;
+            }
+            const extraShiftEarningsDisplay = document.getElementById('extraShiftEarningsDisplay');
+            if (extraShiftEarningsDisplay) {
+                extraShiftEarningsDisplay.textContent = `${appData.currencySymbol}${currentMonthSummary.totalExtraShiftEarnings.toFixed(2)}`;
+            }
+
+            // NEW: Update other add-ons display in main summary
+            const otherAddonsEarningsDisplay = document.getElementById('otherAddonsEarningsDisplay');
+            if (otherAddonsEarningsDisplay) {
+                otherAddonsEarningsDisplay.textContent = `${appData.currencySymbol}${currentMonthSummary.totalOtherAddonsEarnings.toFixed(2)}`;
+            }
+
+
+            const totalEarningsDisplay = document.getElementById('totalEarningsDisplay');
+            if (totalEarningsDisplay) {
+                totalEarningsDisplay.textContent = `${appData.currencySymbol}${currentMonthSummary.totalEarnings.toFixed(2)}`;
+            }
+            
+            // NEW: Update extra shift displays BELOW THE EXTRA SHIFTS CALENDAR
+            const extraShiftSummaryMonthDisplay = document.getElementById('extraShiftSummaryMonthDisplay');
+            if (extraShiftSummaryMonthDisplay) {
+                extraShiftSummaryMonthDisplay.textContent = currentMonthSummary.monthName;
+            }
+            const extraShiftTotalHoursDisplayBelow = document.getElementById('extraShiftTotalHoursDisplayBelow');
+            if (extraShiftTotalHoursDisplayBelow) {
+                extraShiftTotalHoursDisplayBelow.textContent = `${currentMonthSummary.totalExtraHours % 1 === 0 ? currentMonthSummary.totalExtraHours : currentMonthSummary.totalExtraHours.toFixed(1)} hrs`;
+            }
+            const extraShiftEarningsDisplayBelow = document.getElementById('extraShiftEarningsDisplayBelow');
+            if (extraShiftEarningsDisplayBelow) {
+                extraShiftEarningsDisplayBelow.textContent = `${appData.currencySymbol}${currentMonthSummary.totalExtraShiftEarnings.toFixed(2)}`;
+            }
+            // NEW: Update other add-ons summary below its section
+            const otherAddonsSummaryMonthDisplay = document.getElementById('otherAddonsSummaryMonthDisplay');
+            if (otherAddonsSummaryMonthDisplay) {
+                otherAddonsSummaryMonthDisplay.textContent = currentMonthSummary.monthName;
+            }
+            const totalOtherAddonsEarningsDisplay = document.getElementById('totalOtherAddonsEarningsDisplay');
+            if (totalOtherAddonsEarningsDisplay) {
+                totalOtherAddonsEarningsDisplay.textContent = `${appData.currencySymbol}${currentMonthSummary.totalOtherAddonsEarnings.toFixed(2)}`;
+            }
+
+
+            // Render both calendars and add-ons section
+            renderCalendar(appData.currentMonth); 
+            renderExtraShiftCalendar(appData.currentMonth); 
+            renderOtherAddons(appData.currentMonth); // NEW
+
+            // Update comparison and yearly summaries
+            displayComparisonSummary(); 
+            displayYearlySummary(); 
+            
+            saveAppData(); // Ensure all changes are saved after UI updates
+        }
+
+        /**
+         * Calculates and returns a summary object for a given month, including extra shifts and other add-ons.
+         * @param {Date} monthDate - A Date object representing the month to summarize.
+         * @returns {object} An object containing worked days, shift counts, total extra hours, and total earnings.
+         */
+        function getMonthlySummary(monthDate) {
+            const year = monthDate.getFullYear();
+            const month = monthDate.getMonth();
+            const monthKey = `${year}-${month}`;
+            
+            const mainMonthData = appData.workedDaysMap.get(monthKey) || {};
+            const extraShiftMonthData = appData.extraShiftHoursMap.get(monthKey) || {};
+            const otherAddonsMonthData = appData.otherAddonsMap.get(monthKey) || {}; // NEW
+
+            let workedCount = 0; 
+            let dayShiftCount = 0; 
+            let nightShiftCount = 0; 
+            let totalExtraHours = 0; 
+            let totalOtherAddonsEarnings = 0; // NEW
+
+            // Calculate counts from main calendar
+            for (const day in mainMonthData) {
+                const dayStatus = mainMonthData[day];
+                if (dayStatus === 'worked') {
+                    workedCount++;
+                } else if (dayStatus === 'day-shift') {
+                    dayShiftCount++;
+                } else if (dayStatus === 'night-shift') {
+                    nightShiftCount++;
+                }
+            }
+
+            // Calculate total extra hours for the month from extra shifts calendar
+            for (const day in extraShiftMonthData) {
+                totalExtraHours += parseFloat(extraShiftMonthData[day]) || 0;
+            }
+
+            // NEW: Calculate total other add-ons for the month
+            for (const day in otherAddonsMonthData) {
+                const addon = otherAddonsMonthData[day];
+                const amount = parseFloat(addon.amount) || 0;
+                if (addon.type === 'per-day') {
+                    totalOtherAddonsEarnings += amount;
+                } else if (addon.type === 'per-hour') {
+                    const hours = parseFloat(addon.hours) || 0;
+                    totalOtherAddonsEarnings += (amount * hours);
+                }
+            }
+
+            // Determine rates
+            const dailyRate = appData.perDaySalary > 0 ? appData.perDaySalary : (appData.perHourSalary * 8);
+            
+            // Use extraShiftPerHourSalary for extra shift calculations
+            const extraHourlyRate = appData.extraShiftPerHourSalary > 0 ? appData.extraShiftPerHourSalary : appData.perHourSalary;
+
+            let totalBaseEarnings = (workedCount + dayShiftCount + nightShiftCount) * dailyRate;
+            let totalExtraShiftEarnings = totalExtraHours * extraHourlyRate; 
+
+            let totalOverallEarnings = totalBaseEarnings + totalExtraShiftEarnings + totalOtherAddonsEarnings; // Include other add-ons
+
+            return {
+                monthName: monthDate.toLocaleString('default', { month: 'long', year: 'numeric' }),
+                workedDays: workedCount + dayShiftCount + nightShiftCount, 
+                dayShifts: dayShiftCount,
+                nightShifts: nightShiftCount,
+                totalExtraHours: totalExtraHours,
+                totalExtraShiftEarnings: totalExtraShiftEarnings,
+                totalOtherAddonsEarnings: totalOtherAddonsEarnings, // NEW
+                totalEarnings: totalOverallEarnings
+            };
+        }
+        
+        // --- Main Calendar Functionality ---
+        function renderCalendar(date) {
+            const calendarGrid = document.getElementById('calendarGrid');
+            if (!calendarGrid) {
+                console.error("Main calendar grid element not found. Cannot render calendar.");
+                return; 
+            }
+
+            // Clear existing days, keep weekday headers
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
+
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const firstDayOfMonth = new Date(year, month, 1).getDay(); 
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const calendarMonthDisplay = document.getElementById('calendarMonthDisplay');
+            if (calendarMonthDisplay) {
+                calendarMonthDisplay.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+            }
+
+            const monthKey = `${year}-${month}`;
+            if (!appData.workedDaysMap.has(monthKey)) {
+                appData.workedDaysMap.set(monthKey, {}); 
+            }
+
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.classList.add('calendar-day', 'empty');
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            const currentMonthData = appData.workedDaysMap.get(monthKey); 
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                dayElement.innerHTML = `<span class="day-number">${day}</span>`; 
+
+                const dayStatus = currentMonthData[day];
+                if (dayStatus === 'worked') {
+                    dayElement.classList.add('worked');
+                    dayElement.innerHTML += `<span class="icon">✓</span>`; 
+                } else if (dayStatus === 'not-worked') {
+                    dayElement.classList.add('not-worked');
+                    dayElement.innerHTML += `<span class="icon">✖</span>`; 
+                } else if (dayStatus === 'day-shift') {
+                    dayElement.classList.add('day-shift');
+                    dayElement.innerHTML += `<span class="icon">☀️</span>`; 
+                } else if (dayStatus === 'night-shift') {
+                    dayElement.classList.add('night-shift');
+                    dayElement.innerHTML += `<span class="icon">🌙</span>`; 
+                }
+
+                dayElement.addEventListener('click', () => toggleDayStatus(dayElement, monthKey, day));
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        function toggleDayStatus(dayElement, monthKey, day) {
+            let monthData = appData.workedDaysMap.get(monthKey);
+            if (!monthData) {
+                monthData = {}; 
+                appData.workedDaysMap.set(monthKey, monthData); 
+            }
+
+            let currentStatus = monthData[day];
+            let nextStatus;
+
+            if (currentStatus === 'worked') {
+                nextStatus = 'not-worked';
+            } else if (currentStatus === 'not-worked') {
+                nextStatus = 'day-shift';
+            } else if (currentStatus === 'day-shift') {
+                nextStatus = 'night-shift';
+            } else if (currentStatus === 'night-shift') {
+                nextStatus = null; // Reset to empty
+            } else { 
+                nextStatus = 'worked'; // Start with worked
+            }
+
+            dayElement.classList.remove('worked', 'not-worked', 'day-shift', 'night-shift');
+            const iconSpan = dayElement.querySelector('.icon');
+            if (iconSpan) {
+                iconSpan.remove(); 
+            }
+            dayElement.innerHTML = `<span class="day-number">${day}</span>`; 
+
+            if (nextStatus === 'worked') {
+                dayElement.classList.add('worked');
+                dayElement.innerHTML += `<span class="icon">✓</span>`; 
+                monthData[day] = 'worked';
+            } else if (nextStatus === 'not-worked') {
+                dayElement.classList.add('not-worked');
+                dayElement.innerHTML += `<span class="icon">✖</span>`; 
+                monthData[day] = 'not-worked';
+            } else if (nextStatus === 'day-shift') {
+                dayElement.classList.add('day-shift');
+                dayElement.innerHTML += `<span class="icon">☀️</span>`; 
+                monthData[day] = 'day-shift';
+            } else if (nextStatus === 'night-shift') {
+                dayElement.classList.add('night-shift');
+                dayElement.innerHTML += `<span class="icon">🌙</span>`; 
+                monthData[day] = 'night-shift';
+            } else { 
+                delete monthData[day]; 
+            }
+
+            appData.workedDaysMap.set(monthKey, monthData); 
+            
+            // Re-render dashboard to reflect changes
+            updateDashboard(); 
+        }
+
+        // NEW: Extra Shifts Calendar Functionality
+        function renderExtraShiftCalendar(date) {
+            const calendarGrid = document.getElementById('extraShiftCalendarGrid');
+            if (!calendarGrid) {
+                console.error("Extra shift calendar grid element not found. Cannot render calendar.");
+                return;
+            }
+
+            // Clear existing days, keep weekday headers
+            while (calendarGrid.children.length > 7) {
+                calendarGrid.removeChild(calendarGrid.lastChild);
+            }
+
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            const calendarMonthDisplay = document.getElementById('extraShiftCalendarMonthDisplay');
+            if (calendarMonthDisplay) {
+                calendarMonthDisplay.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+            }
+
+            const monthKey = `${year}-${month}`;
+            if (!appData.extraShiftHoursMap.has(monthKey)) {
+                appData.extraShiftHoursMap.set(monthKey, {});
+            }
+
+            for (let i = 0; i < firstDayOfMonth; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.classList.add('calendar-day', 'empty');
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            const currentMonthData = appData.extraShiftHoursMap.get(monthKey);
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayElement = document.createElement('div');
+                dayElement.classList.add('calendar-day');
+                dayElement.innerHTML = `<span class="day-number">${day}</span>`;
+
+                const dayHours = parseFloat(currentMonthData[day]) || 0;
+                if (dayHours > 0) {
+                    dayElement.classList.add('has-extra-hours');
+                    // Display with one decimal if it's .5, otherwise as whole number
+                    dayElement.innerHTML += `<span class="extra-hours">${dayHours % 1 === 0 ? dayHours : dayHours.toFixed(1)}h</span>`;
+                }
+
+                dayElement.addEventListener('click', () => toggleExtraShiftHours(dayElement, monthKey, day));
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
+        // NEW: Function to toggle extra shift hours
+        function toggleExtraShiftHours(dayElement, monthKey, day) {
+            let monthData = appData.extraShiftHoursMap.get(monthKey);
+            if (!monthData) {
+                monthData = {};
+                appData.extraShiftHoursMap.set(monthKey, monthData);
+            }
+
+            let currentHours = parseFloat(monthData[day]) || 0;
+            let nextHours;
+
+            // Increment by 0.5, reset to 0 if it goes above 12 hours
+            if (currentHours >= 12) { // Max 12 hours extra shift per day, then resets
+                nextHours = 0;
+            } else {
+                nextHours = currentHours + 0.5;
+            }
+
+            dayElement.classList.remove('has-extra-hours');
+            const hoursSpan = dayElement.querySelector('.extra-hours');
+            if (hoursSpan) {
+                hoursSpan.remove();
+            }
+            dayElement.innerHTML = `<span class="day-number">${day}</span>`;
+
+            if (nextHours > 0) {
+                dayElement.classList.add('has-extra-hours');
+                dayElement.innerHTML += `<span class="extra-hours">${nextHours % 1 === 0 ? nextHours : nextHours.toFixed(1)}h</span>`;
+                monthData[day] = nextHours;
+            } else {
+                delete monthData[day]; // Remove from data if hours are 0
+            }
+
+            appData.extraShiftHoursMap.set(monthKey, monthData);
+            
+            // Re-render dashboard to reflect changes
+            updateDashboard();
+        }
+
+        // NEW: Other Add-ons Section Functionality
+        function renderOtherAddons(date) {
+            const addonsGrid = document.getElementById('addonsGrid');
+            if (!addonsGrid) {
+                console.error("Add-ons grid element not found. Cannot render add-ons.");
+                return;
+            }
+
+            addonsGrid.innerHTML = ''; // Clear existing blocks
+
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const monthKey = `${year}-${month}`;
+
+            const addonsMonthDisplay = document.getElementById('addonsMonthDisplay');
+            if (addonsMonthDisplay) {
+                addonsMonthDisplay.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+            }
+
+            if (!appData.otherAddonsMap.has(monthKey)) {
+                appData.otherAddonsMap.set(monthKey, {});
+            }
+            const currentMonthAddons = appData.otherAddonsMap.get(monthKey);
+
+            // Corrected logic for lastDayToRender
+            const today = new Date();
+            let lastDayToRender;
+
+            // If the calendar being rendered is the current month and year
+            if (year === today.getFullYear() && month === today.getMonth()) {
+                lastDayToRender = today.getDate(); // Render up to today's date
+            } else {
+                // If it's a past or future month, render all days of that month
+                lastDayToRender = new Date(year, month + 1, 0).getDate(); 
+            }
+
+            for (let day = 1; day <= lastDayToRender; day++) {
+                const addonDayBlock = document.createElement('div');
+                addonDayBlock.classList.add('addon-day-block');
+
+                const dayData = currentMonthAddons[day] || { name: '', type: 'per-day', amount: 0, hours: 0 };
+
+                // Get the current month and year for the display in the block
+                const currentMonthNameShort = date.toLocaleString('default', { month: 'short' });
+                const currentYearShort = String(year).slice(-2); // Get last two digits of the year
+
+                addonDayBlock.innerHTML = `
+                    <h4>${currentMonthNameShort}: ${day}/${month + 1}/${currentYearShort}</h4>
+                    <div class="input-group">
+                        <label for="addonName-${day}">Add-on Name</label>
+                        <input type="text" id="addonName-${day}" placeholder="Add-on Name" value="${dayData.name || ''}">
+                    </div>
+                    <div class="input-group">
+                        <label for="addonType-${day}">Rate Type</label>
+                        <select id="addonType-${day}">
+                            <option value="per-day" ${dayData.type === 'per-day' ? 'selected' : ''}>Per Day</option>
+                            <option value="per-hour" ${dayData.type === 'per-hour' ? 'selected' : ''}>Per Hour</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="addonAmount-${day}">Amount (${appData.currencySymbol})</label>
+                        <input type="number" id="addonAmount-${day}" placeholder="Amount" value="${dayData.amount || ''}" step="0.01">
+                    </div>
+                    <div class="input-group addon-hours-group" id="addonHoursGroup-${day}" style="display: ${dayData.type === 'per-hour' ? 'block' : 'none'};">
+                        <label for="addonHours-${day}">Hours</label>
+                        <input type="number" id="addonHours-${day}" placeholder="Hours" value="${dayData.hours || ''}" step="0.5">
+                    </div>
+                `;
+                addonsGrid.appendChild(addonDayBlock);
+
+                // Add event listeners and update daily total dynamically
+                const addonNameInput = addonDayBlock.querySelector(`#addonName-${day}`);
+                const addonTypeSelect = addonDayBlock.querySelector(`#addonType-${day}`);
+                const addonAmountInput = addonDayBlock.querySelector(`#addonAmount-${day}`);
+                const addonHoursGroup = addonDayBlock.querySelector(`#addonHoursGroup-${day}`);
+                const addonHoursInput = addonDayBlock.querySelector(`#addonHours-${day}`);
+                
+                const updateAddonData = () => {
+                    const name = addonNameInput.value.trim();
+                    const type = addonTypeSelect.value;
+                    const amount = parseFloat(addonAmountInput.value) || 0;
+                    const hours = parseFloat(addonHoursInput.value) || 0;
+                    
+                    if (type === 'per-day') {
+                        addonHoursGroup.style.display = 'none';
+                    } else if (type === 'per-hour') {
+                        addonHoursGroup.style.display = 'block';
+                    }
+
+                    // Save data to appData.otherAddonsMap
+                    if (name || amount > 0 || hours > 0) { // Only save if there's actual data
+                        currentMonthAddons[day] = { name, type, amount, hours };
+                    } else {
+                        delete currentMonthAddons[day]; // Remove from map if all fields are empty
+                    }
+                    appData.otherAddonsMap.set(monthKey, currentMonthAddons);
+                    // No direct updateDashboard() call here to prevent excessive updates.
+                    // Instead, updateDashboard is called by saveAddonsBtn or navigation.
+                };
+                
+                // Initial update when rendering (to set initial display for hours group)
+                updateAddonData();
+
+                addonNameInput.addEventListener('input', updateAddonData);
+                addonTypeSelect.addEventListener('change', updateAddonData);
+                addonAmountInput.addEventListener('input', updateAddonData);
+                addonHoursInput.addEventListener('input', updateAddonData);
+            }
+        }
+
+
+        function displayComparisonSummary() {
+            const currentMonthSummary = getMonthlySummary(appData.currentMonth);
+            const prevMonthDate = new Date(appData.currentMonth);
+            prevMonthDate.setMonth(prevMonthDate.getMonth() - 1);
+            const prevMonthSummary = getMonthlySummary(prevMonthDate);
+
+            const elements = {
+                currentCompMonthNameDisplay: currentMonthSummary.monthName,
+                currentCompWorkedDaysDisplay: currentMonthSummary.workedDays,
+                currentCompDayShiftCountDisplay: currentMonthSummary.dayShifts,
+                currentCompNightShiftDisplay: currentMonthSummary.nightShifts,
+                // NEW: Extra Hours in comparison display
+                currentCompExtraHoursDisplay: `${currentMonthSummary.totalExtraHours % 1 === 0 ? currentMonthSummary.totalExtraHours : currentMonthSummary.totalExtraHours.toFixed(1)}h`,
+                // NEW: Other Add-ons in comparison display
+                currentCompOtherAddonsDisplay: `${appData.currencySymbol}${currentMonthSummary.totalOtherAddonsEarnings.toFixed(2)}`,
+                currentCompTotalEarningsDisplay: `${appData.currencySymbol}${currentMonthSummary.totalEarnings.toFixed(2)}`,
+
+                prevMonthNameDisplay: prevMonthSummary.monthName,
+                prevWorkedDaysDisplay: prevMonthSummary.workedDays,
+                prevDayShiftCountDisplay: prevMonthSummary.dayShifts,
+                prevNightShiftCountDisplay: prevMonthSummary.nightShifts,
+                // NEW: Extra Hours in comparison display
+                prevExtraHoursDisplay: `${prevMonthSummary.totalExtraHours % 1 === 0 ? prevMonthSummary.totalExtraHours : prevMonthSummary.totalExtraHours.toFixed(1)}h`,
+                // NEW: Other Add-ons in comparison display
+                prevOtherAddonsDisplay: `${appData.currencySymbol}${prevMonthSummary.totalOtherAddonsEarnings.toFixed(2)}`,
+                prevTotalEarningsDisplay: `${appData.currencySymbol}${prevMonthSummary.totalEarnings.toFixed(2)}`
+            };
+
+            for (const id in elements) {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = elements[id];
+                }
+            }
+        }
+
+        /**
+         * Calculates the total earnings for a given year.
+         * @param {number} year - The year to calculate earnings for.
+         * @returns {number} The total earnings for the specified year.
+         */
+        function getYearlySummary(year) {
+            let yearlyTotal = 0;
+            for (let month = 0; month < 12; month++) {
+                const monthDate = new Date(year, month, 1);
+                const monthlySummary = getMonthlySummary(monthDate); 
+                yearlyTotal += monthlySummary.totalEarnings;
+            }
+            return yearlyTotal;
+        }
+
+        function displayYearlySummary() {
+            const currentYear = appData.currentMonth.getFullYear();
+            const totalYearlyEarnings = getYearlySummary(currentYear);
+
+            const yearlyEarningsYearDisplay = document.getElementById('yearlyEarningsYearDisplay');
+            if (yearlyEarningsYearDisplay) {
+                yearlyEarningsYearDisplay.textContent = currentYear;
+            }
+            const totalYearlyEarningsDisplay = document.getElementById('totalYearlyEarningsDisplay');
+            if (totalYearlyEarningsDisplay) {
+                totalYearlyEarningsDisplay.textContent = `${appData.currencySymbol}${totalYearlyEarnings.toFixed(2)}`;
+            }
+        }
+
+
+        // Event Listeners for Main Calendar Month Navigation Buttons
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        if (prevMonthBtn) {
+            prevMonthBtn.addEventListener('click', () => {
+                appData.currentMonth.setMonth(appData.currentMonth.getMonth() - 1);
+                updateDashboard(); 
+            });
+        }
+
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        if (nextMonthBtn) {
+            nextMonthBtn.addEventListener('click', () => {
+                appData.currentMonth.setMonth(appData.currentMonth.getMonth() + 1);
+                updateDashboard(); 
+            });
+        }
+
+        // NEW: Event Listeners for Extra Shifts Calendar Month Navigation Buttons
+        const prevExtraShiftMonthBtn = document.getElementById('prevExtraShiftMonthBtn');
+        if (prevExtraShiftMonthBtn) {
+            prevExtraShiftMonthBtn.addEventListener('click', () => {
+                appData.currentMonth.setMonth(appData.currentMonth.getMonth() - 1);
+                updateDashboard();
+            });
+        }
+
+        const nextExtraShiftMonthBtn = document.getElementById('nextExtraShiftMonthBtn');
+        if (nextExtraShiftMonthBtn) {
+            nextExtraShiftMonthBtn.addEventListener('click', () => {
+                appData.currentMonth.setMonth(appData.currentMonth.getMonth() + 1);
+                updateDashboard();
+            });
+        }
+
+        // NEW: Event listener for Save Add-ons Button
+        const saveAddonsBtn = document.getElementById('saveAddonsBtn');
+        if (saveAddonsBtn) {
+            saveAddonsBtn.addEventListener('click', () => {
+                // When saving add-ons, iterate through all rendered blocks to ensure
+                // that their data is properly updated in `appData.otherAddonsMap`.
+                // The `updateAddonData` function (inside renderOtherAddons) already handles this
+                // on input change. So, simply calling updateDashboard will ensure re-calculation
+                // and then saveAppData is called within updateDashboard.
+                updateDashboard(); 
+                alert("Add-ons saved and dashboard updated!"); 
+            });
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let initialPage = 'welcomePage';
+            if (loadAppData()) {
+                // If data was loaded, check if salary details are set
+                if (appData.perHourSalary === 0 && appData.perDaySalary === 0 && appData.extraShiftPerHourSalary === 0) {
+                    initialPage = 'salaryDetailsPage'; 
+                } else {
+                    initialPage = 'mainDashboardPage'; 
+                }
+            }
+
+            // Always run the updateCurrencyInputVisibility for salaryDetailsPage setup
+            // This needs to happen even if initialPage is not salaryDetailsPage,
+            // in case the user later navigates back to it.
+            const currencySelect = document.getElementById('currencySelect');
+            const customCurrencyInputGroup = document.getElementById('customCurrencyInputGroup');
+            const customCurrencySymbolInput = document.getElementById('customCurrencySymbol');
+            const countrySelect = document.getElementById('countrySelect');
+            const perHourSalaryInput = document.getElementById('perHourSalary');
+            const perDaySalaryInput = document.getElementById('perDaySalary');
+            const extraShiftPerHourSalaryInput = document.getElementById('extraShiftPerHourSalary'); 
+
+            // Pre-fill fields if data was loaded
+            if (perHourSalaryInput) perHourSalaryInput.value = appData.perHourSalary;
+            if (perDaySalaryInput) perDaySalaryInput.value = appData.perDaySalary;
+            if (extraShiftPerHourSalaryInput) extraShiftPerHourSalaryInput.value = appData.extraShiftPerHourSalary; 
+
+            const updateCurrencyInputVisibility = () => {
+                if (currencySelect && customCurrencyInputGroup && customCurrencySymbolInput) {
+                    if (currencySelect.value === 'custom') {
+                        customCurrencyInputGroup.style.display = 'block';
+                        const predefinedOptions = Array.from(currencySelect.options).map(opt => opt.value);
+                        if (appData.currencySymbol && !predefinedOptions.includes(appData.currencySymbol)) {
+                            customCurrencySymbolInput.value = appData.currencySymbol;
+                        }
+                    } else {
+                        customCurrencyInputGroup.style.display = 'none';
+                        customCurrencySymbolInput.value = '';
+                    }
+                }
+            };
+
+            if (currencySelect) {
+                currencySelect.addEventListener('change', updateCurrencyInputVisibility);
+
+                if (countrySelect) {
+                    countrySelect.value = appData.country;
+                }
+
+                // Set initial currency selection after loading appData
+                const predefinedOptions = Array.from(currencySelect.options).map(opt => opt.value);
+                if (predefinedOptions.includes(appData.currencySymbol)) {
+                    currencySelect.value = appData.currencySymbol;
+                } else {
+                    currencySelect.value = 'custom';
+                }
+                updateCurrencyInputVisibility(); 
+            }
+
+            // Finally, show the determined initial page and update dashboard
+            showPage(initialPage);
+            if (initialPage === 'mainDashboardPage') {
+                updateDashboard(); 
+            }
+
+            // Add event listener for the refresh button
+            const refreshDashboardBtn = document.getElementById('refreshDashboardBtn');
+            if (refreshDashboardBtn) {
+                refreshDashboardBtn.addEventListener('click', () => {
+                    updateDashboard(); 
+                });
+            }
+        });
+
+    </script>
+</body>
+</html>
